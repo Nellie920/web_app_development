@@ -39,8 +39,8 @@ def create_app(test_config=None):
 
     # Auto-create tables (if not using migrations)
     with app.app_context():
-        import app.models.transaction
-        import app.models.stock
+        from app.models import transaction
+        from app.models import stock
         db.create_all()
 
     return app

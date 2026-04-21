@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 text-center" style="background-color: #e6f7ff; border: 2px solid #b3e0ff;">
+            <h5>可用餘額</h5>
+            <h2 class="text-primary">${{ "%.2f"|format(balance) }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center" style="background-color: #f6ffed; border: 2px solid #b7eb8f;">
+            <h5>總收入</h5>
+            <h3 class="text-success">${{ "%.2f"|format(total_income) }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 text-center" style="background-color: #fff1f0; border: 2px solid #ffa39e;">
+            <h5>總支出</h5>
+            <h3 class="text-danger">${{ "%.2f"|format(total_expense) }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>📝 近期收支紀錄</h4>
+        <a href="/transactions/new" class="btn btn-sm btn-primary">➕ 新增一筆</a>
+    </div>
+    
+    {% if transactions %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>日期</th>
+                    <th>種類</th>
+                    <th>分類</th>
+                    <th>備註</th>
+                    <th class="text-end">金額</th>
+                    <th class="text-center">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{ tx.date }}</td>
+                    <td>
+                        {% if tx.type == 'income' %}
+                        <span class="badge bg-success">收入</span>
+                        {% else %}
+                        <span class="badge bg-danger">支出</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ tx.category }}</td>
+                    <td>{{ tx.description or '-' }}</td>
+                    <td class="text-end fw-bold {% if tx.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                        {% if tx.type == 'income' %}+{% else %}-{% endif %} ${{ "%.2f"|format(tx.amount) }}
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ url_for('transaction.edit_transaction', id=tx.id) }}" class="btn btn-sm btn-outline-secondary">🖊️ 編輯</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center p-5 text-muted">
+        <p>目前尚無任何收支紀錄，現在就來記下一筆吧！</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

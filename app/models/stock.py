@@ -14,32 +14,67 @@ class StockTransaction(db.Model):
 
     @classmethod
     def create(cls, stock_symbol, trade_type, price, quantity, trade_date):
-        new_st = cls(
-            stock_symbol=stock_symbol,
-            trade_type=trade_type,
-            price=price,
-            quantity=quantity,
-            trade_date=trade_date
-        )
-        db.session.add(new_st)
-        db.session.commit()
-        return new_st
+        """
+        新增一筆股票記錄
+        :param stock_symbol: 股票代號
+        :param trade_type: 交易類型 ('buy' 或 'sell')
+        :param price: 單價
+        :param quantity: 股數
+        :param trade_date: 交易日期
+        """
+        try:
+            new_st = cls(
+                stock_symbol=stock_symbol,
+                trade_type=trade_type,
+                price=price,
+                quantity=quantity,
+                trade_date=trade_date
+            )
+            db.session.add(new_st)
+            db.session.commit()
+            return new_st
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error creating stock transaction: {e}")
+            raise
 
     @classmethod
     def get_all(cls):
-        return cls.query.order_by(cls.trade_date.desc()).all()
+        """取得所有股票記錄"""
+        try:
+            return cls.query.order_by(cls.trade_date.desc()).all()
+        except Exception as e:
+            print(f"Error getting all stock transactions: {e}")
+            return []
 
     @classmethod
     def get_by_id(cls, st_id):
-        return cls.query.get(st_id)
+        """根據 ID 取得股票記錄"""
+        try:
+            return cls.query.get(st_id)
+        except Exception as e:
+            print(f"Error getting stock transaction by id: {e}")
+            return None
 
     def update(self, **kwargs):
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-        db.session.commit()
-        return self
+        """更新股票記錄"""
+        try:
+            for key, value in kwargs.items():
+                if hasattr(self, key):
+                    setattr(self, key, value)
+            db.session.commit()
+            return self
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error updating stock transaction: {e}")
+            raise
 
     def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+        """刪除股票記錄"""
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error deleting stock transaction: {e}")
+            raise
